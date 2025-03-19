@@ -9,3 +9,8 @@
   "dependencies": {},
   "devDependencies": {}
 }
+
+"scripts": {
+  "test": "echo \"Running tests...\"",
+  "build": "echo \"Build step not defined\""
+}
