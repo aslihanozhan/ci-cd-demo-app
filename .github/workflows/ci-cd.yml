@@ -1,45 +1,44 @@
-me: Java CI/CD Workflow
+name: Java CI/CD Workflow
 
 on:
-    push:
-          branches: [main]
-              pull_request:
-                    branches: [main]
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
-                    jobs:
-                        build-and-deploy:
-                              runs-on: ubuntu-latest
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
 
-                                    steps:
-                                            - name: Checkout code
-                                                      uses: actions/checkout@v2
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-                                                              - name: Set up JDK
-                                                                        uses: actions/setup-java@v3
-                                                                                  with:
-                                                                                              java-version: '17'
-                                                                                                          distribution: 'temurin'
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
 
-                                                                                                                  - name: Cache Maven packages
-                                                                                                                            uses: actions/cache@v3
-                                                                                                                                      with:
-                                                                                                                                                  path: ~/.m2
-                                                                                                                                                              key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
-                                                                                                                                                                          restore-keys: |
-                                                                                                                                                                                        ${{ runner.os }}-maven-
+      - name: Cache Maven packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
 
-                                                                                                                                                                                              - name: Install dependencies and run tests
-                                                                                                                                                                                                        run: mvn clean install
+      - name: Install dependencies and run tests
+        run: mvn clean install
 
-                                                                                                                                                                                                                - name: Build project
-                                                                                                                                                                                                                          run: mvn package
+      - name: Build project
+        run: mvn package
 
-                                                                                                                                                                                                                                  - name: Deploy to AWS S3
-                                                                                                                                                                                                                                            if: success()
-                                                                                                                                                                                                                                                      env:
-                                                                                                                                                                                                                                                                  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-                                                                                                                                                                                                                                                                              AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-                                                                                                                                                                                                                                                                                          AWS_REGION: us-east-1
-                                                                                                                                                                                                                                                                                                    run: |
-                                                                                                                                                                                                                                                                                                                aws s3 cp target/ci-cd-demo-app-1.0.0.jar s3://your-s3-bucket-name/
-
+      - name: Deploy to AWS S3
+        if: success()
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: us-east-1
+        run: |
+          aws s3 cp target/ci-cd-demo-app-1.0.0.jar s3://your-s3-bucket-name/
