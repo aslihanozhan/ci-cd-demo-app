@@ -1,40 +1,47 @@
-name: Java CI/CD Workflow
+name: MY ASLI - Java CI/CD Workflow          ## Name of this workflow
 
 on:
   push:
-    branches: [main]
+    branches: [main]                         #trigger make the changes into MAIN branch if someone pushes
   pull_request:
-    branches: [main]
+    branches: [main]                         ##If a PR occurs,create/update the MAIN branch 
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout code                    ##Project's source code sends from Githun into virtual machime so that runner works on it 
         uses: actions/checkout@v2
 
       - name: Set up JDK
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: '17'                   ##Install Java the Temurin distr.
           distribution: 'temurin'
 
-      - name: Cache Maven packages
+      - name: Cache Maven packages              ##Using chached mechanizim, remember Maven dependencies 
         uses: actions/cache@v3
         with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          path: ~/.m2                            ##Maven's default local repo 
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}  ##cache validity according to pom.xml chnages 
           restore-keys: |
             ${{ runner.os }}-maven-
 
-      - name: Install dependencies and run tests
+      - name: Install dependencies and run tests         ##Clean installation dependencies by removing previous, and test for your code after  complied the code 
         run: mvn clean install
 
-      - name: Build project
+      - name: Build project                    ##create final jar file for your application in target / directory 
         run: mvn package
+  
+      - name: Run Checkstyle               ##Java Code Analyze tool to ensure coding standarts 
+        run: mvn checkstyle:check
+  
+      - name: Dependency Scan               ##scan pom.xml dependencies fro unknown vulnerabilites , find risky packages ,security complience 
+        run: mvn org.owasp:dependency-check-maven:check
 
-      - name: Deploy to AWS S3
+  
+      - name: Deploy to AWS S3           ##deolpy your jar file to S3 bucket in my AWSS
         if: success()
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
