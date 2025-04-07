@@ -3,7 +3,7 @@ package com.example;
 /**
  * Entry point class.
  */
-public class App {
+public final class App {
     private App() {
         // prevent instantiation
     }
