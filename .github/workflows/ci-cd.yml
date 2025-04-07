@@ -35,15 +35,11 @@ jobs:
         run: ls -la
   
       - name: Install dependencies and run tests         ##Clean installation dependencies by removing previous, and test for your code after  complied the code 
-        run: |
-          cd ci-cd-demo-app
-          mvn clean install
+        run:  mvn clean install
 
 
       - name: Build project                    ##create final jar file for your application in target / directory 
-        run: |
-          cd ci-cd-demo-app
-          mvn package
+        run:  mvn package
   
       - name: Run Checkstyle               ##Java Code Analyze tool to ensure coding standarts 
         run: mvn checkstyle:check
