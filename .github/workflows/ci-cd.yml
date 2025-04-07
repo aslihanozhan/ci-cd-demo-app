@@ -51,7 +51,7 @@ jobs:
       - name: Deploy to AWS S3           ##deolpy your jar file to S3 bucket in my AWSS
         if: success()
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_BUCKET_NAME  }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_BUCKET_NAME }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: us-east-1
         run: |
