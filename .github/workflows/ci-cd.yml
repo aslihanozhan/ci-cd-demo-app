@@ -4,14 +4,14 @@ on:
   push:
     branches: [main]                         #trigger make the changes into MAIN branch if someone pushes
   pull_request:
-    branches: [main]                         ##If a PR occurs,create/update the MAIN branch 
+    branches: [main]                         ##If a PR occurs,create/update the MAIN branch
 
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code                    ##Project's source code sends from Githun into virtual machime so that runner works on it 
+      - name: Checkout code                    ##Project's source code sends from Githun into virtual machime so that runner works on it
         uses: actions/checkout@v2
 
       - name: Set up JDK
@@ -20,11 +20,11 @@ jobs:
           java-version: '17'                   ##Install Java the Temurin distr.
           distribution: 'temurin'
 
-      - name: Cache Maven packages              ##Using chached mechanizim, remember Maven dependencies 
+      - name: Cache Maven packages              ##Using chached mechanizim, remember Maven dependencies
         uses: actions/cache@v3
         with:
-          path: ~/.m2                            ##Maven's default local repo 
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}  ##cache validity according to pom.xml chnages 
+          path: ~/.m2                            ##Maven's default local repo
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}  ##cache validity according to pom.xml chnages
           restore-keys: |
             ${{ runner.os }}-maven-
 
@@ -33,29 +33,30 @@ jobs:
 
       - name: Show files in working directory
         run: ls -la
-  
-      - name: Install dependencies and run tests         ##Clean installation dependencies by removing previous, and test for your code after  complied the code 
+
+      - name: Install dependencies and run tests         ##Clean installation dependencies by removing previous, and test for your code after  complied the code
         run:  mvn clean install
 
 
-      - name: Build project                    ##create final jar file for your application in target / directory 
+      - name: Build project                    ##create final jar file for your application in target / directory
         run:  mvn package
-  
-      - name: Run Checkstyle               ##Java Code Analyze tool to ensure coding standarts 
+
+      - name: Run Checkstyle               ##Java Code Analyze tool to ensure coding standarts
         run: mvn checkstyle:check
-  
-      - name: Dependency Scan               ##scan pom.xml dependencies fro unknown vulnerabilites , find risky packages ,security complience 
+
+      - name: Dependency Scan               ##scan pom.xml dependencies fro unknown vulnerabilites , find risky packages ,security complience
         run: mvn org.owasp:dependency-check-maven:check
 
-  
+
       - name: Deploy to AWS S3           ##deolpy your jar file to S3 bucket in my AWSS
         if: success()
         env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_BUCKET_NAME }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          AWS_REGION: us-east-1
+          AWS_REGION: eu-north-1
         run: |
           aws s3 cp target/ci-cd-demo-app-1.0.0.jar s3://myaslibucket/
+      
       #####
       #- name: Deploy to AWS S3   ##My only exist staging server is AWS so that the app file will be transfer into bucket
       #  uses: jakejarvis/s3-sync-action@v0.5.1
@@ -66,4 +67,3 @@ jobs:
       #    AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       #    AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       #    SOURCE_DIR: ./dist
-
