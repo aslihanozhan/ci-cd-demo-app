@@ -28,12 +28,22 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-maven-
 
+      - name: Print current working directory
+        run: pwd
+
+      - name: Show files in working directory
+        run: ls -la
+  
       - name: Install dependencies and run tests         ##Clean installation dependencies by removing previous, and test for your code after  complied the code 
-        run:  mvn clean install
+        run: |
+          cd ci-cd-demo-app
+          mvn clean install
 
 
       - name: Build project                    ##create final jar file for your application in target / directory 
-        run:  mvn package
+        run: |
+          cd ci-cd-demo-app
+          mvn package
   
       - name: Run Checkstyle               ##Java Code Analyze tool to ensure coding standarts 
         run: mvn checkstyle:check
